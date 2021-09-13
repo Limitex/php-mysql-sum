@@ -109,7 +109,7 @@ class MySQL {
             }
             if ($type2 == MySQL::SELECT_TYPE_LATEST){
                 if (empty($arg2)) throw new Exception('Argument required');
-                return $this->send_sql($this->SQL['SELECT']['LIST']['LATEST'][$table], array(':SIZE' => $arg2));
+                return $this->send_sql($this->SQL['SELECT']['LIST']['LATEST'][$table], array(':SIZE' => $arg2))[1];
             }
         }
         if($type1 == MySQL::SELECT_TYPE_COUNT){
