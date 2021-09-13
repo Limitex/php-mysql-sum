@@ -3,6 +3,11 @@ class MySQL {
     
     private $MySQL_PDO, $SQL;
 
+    public const SELECT_TYPE_COUNT = 0;
+    public const SELECT_TYPE_LIST = 1;
+    public const SELECT_TYPE_ALL = 2;
+    public const SELECT_TYPE_LATEST = 3;
+
     function __construct($hostname, $username, $password, $database) {
         try {
             $this->MySQL_PDO = new PDO ("mysql:host=$hostname;dbname=$database;charset=utf8", $username, $password);
@@ -38,8 +43,8 @@ class MySQL {
         $stmt = $this->MySQL_PDO->prepare($SQL);
         if(isset($parms)){
             foreach ($parms as $key => $value)
-            if (is_int($value)) $stmt->bindValue($key, $value, PDO::PARAM_INT);
-            else $stmt->bindValue($key, $value, PDO::PARAM_STR);
+                if (is_int($value)) $stmt->bindValue($key, $value, PDO::PARAM_INT);
+                else $stmt->bindValue($key, $value, PDO::PARAM_STR);
         }
         if($stmt->execute()) return array( true, $stmt->fetchAll() );
         else return array( false, '' );
@@ -72,25 +77,8 @@ class MySQL {
         return array( true, '' );
     }
 
-    function show_sqls($type) {
-        if($type == 0){
-            foreach($this->SQL as $key1 => $array){
-                foreach($array as $key => $value){
-                    if(!is_array($value)){
-                        echo '['.$key1.']['.$key.'] = "'.$value.'"<br>';
-                    }else{
-                        foreach($value as $k => $a){
-                            echo '['.$key1.']['.$key.']['.$k.'] = "'.$a.'"<br>';
-                        }
-                    }
-                    
-                }
-                echo "<br>";
-            }
-        }
-        if ($type == 1){
-            $this->print_a($this->SQL);
-        }
+    function show_sqls() {
+        $this->print_a($this->SQL);
     }
 
     function CREATE($table = NULL) {
@@ -114,18 +102,18 @@ class MySQL {
     }
 
     function SELECT($table, $type1, $type2 = NULL, $arg2 = NULL){
-        if($type1 == 'list'){
+        if($type1 == MySQL::SELECT_TYPE_LIST){
             if (empty($type2)) throw new Exception('Argument required');
 
-            if ($type2 == 'all'){
+            if ($type2 == MySQL::SELECT_TYPE_ALL){
                 return $this->send_sql($this->SQL['SELECT']['LIST']['ALL'][$table])[1];
             }
-            if ($type2 == 'latest'){
+            if ($type2 == MySQL::SELECT_TYPE_LATEST){
                 if (empty($arg2)) throw new Exception('Argument required');
                 return $this->send_sql($this->SQL['SELECT']['LIST']['LATEST'][$table], array(':SIZE' => $arg2));
             }
         }
-        if($type1 == 'count'){
+        if($type1 == MySQL::SELECT_TYPE_COUNT){
             return $this->send_sql($this->SQL['SELECT']['COUNT'][$table])[1][0][0];
         }
     }
