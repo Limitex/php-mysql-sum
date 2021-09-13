@@ -41,9 +41,9 @@
     $mysql->DELETE($table_name2, 2);
     $mysql->DELETE($table_name3, 2);
 
-    $mysql->print_a($mysql->SELECT($table_name1, MySQL::SELECT_TYPE_COUNT));
-    $mysql->print_a($mysql->SELECT($table_name1, MySQL::SELECT_TYPE_LIST, MySQL::SELECT_TYPE_ALL));
-    $mysql->print_a($mysql->SELECT($table_name1, MySQL::SELECT_TYPE_LIST, MySQL::SELECT_TYPE_LATEST, 5));
+    $mysql->print_a($mysql->SELECT($table_name1, MySQL::SELECT_TYPE_COUNT), 'SELECT TYPE COUNT');
+    $mysql->print_a($mysql->SELECT($table_name1, MySQL::SELECT_TYPE_LIST, MySQL::SELECT_TYPE_ALL), 'SELECT TYPE LIST ALL');
+    $mysql->print_a($mysql->SELECT($table_name1, MySQL::SELECT_TYPE_LIST, MySQL::SELECT_TYPE_LATEST, 5), 'SELECT TYPE LIST LATEST');
     
     // $mysql->DROP($table_name1);
     // $mysql->DROP($table_name2);
