@@ -93,14 +93,17 @@ class MySQL {
     }
 
     function INSERT($table, $array) {
-        $params = $this->params($this->SQL['COLUMN'][$table], array_keys($array), $array);
+        $sql_columns = $this->SQL['COLUMN'][$table];
+        $insert_columns = array_keys($array);
+        $params = $this->params($sql_columns, $insert_columns, $array);
         $this->send_sql($this->SQL['INSERT'][$table], $params);
     }
 
     function UPDATE($table, $where, $array){
         $array = array('ID' => $where) + $array;
-        $sql_columns = $this->SQL['COLUMN'][$table];
-        $params = $this->params(array_unshift($sql_columns, 'ID'), array_keys($array), $array);
+        $sql_columns = $this->SQL['COLUMN'][$table]; array_unshift($sql_columns, 'ID');
+        $insert_columns = array_keys($array);
+        $params = $this->params($sql_columns, $insert_columns, $array);
         $this->send_sql($this->SQL['UPDATE'][$table], $params);
     }
 

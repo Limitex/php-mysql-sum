@@ -24,7 +24,7 @@
 
     $mysql->CREATE();
 
-    $mysql->UPDATE($table_name1, 2, array('UserName' => 'val_u1aaaa', 'PasswordHash' => 'val_p2', 'Position' => 'val3'));
+    $mysql->UPDATE($table_name1, 2, array('UserName' => 'rrr', 'PasswordHash' => 'val_p2', 'Position' => 'val3'));
     // $mysql->INSERT($table_name1, array('UserName' => 'val_username', 'PasswordHash' => 'val_passwordhash', 'Position' => 'val_position'));
     // $mysql->INSERT($table_name2, array('UserName' => 'val_username', 'CreatorIP' => 'val_creatorIp', 'CreatedTime' => 'val_createdtime', 'Description' => 'val_description'));
     // $mysql->INSERT($table_name3, array('Item' => 'val_item', 'Value' => 'val_value'));
