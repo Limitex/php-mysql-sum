@@ -1,28 +1,35 @@
 <?php
 require( $_SERVER['DOCUMENT_ROOT'] . '/_mysql.php');
 class MySQL_Manage {
-    private $hostname = 'localhost';
-    private $username = 'root';
-    private $password = '0000';
-    private $database = 'test_database';
 
-    private $table_name1 = 'user_list';
-    private $table_name2 = 'list';
-    private $table_name3 = 'setting';
+    public const SELECT_TYPE_ALL = 0;
+    public const SELECT_TYPE_LATEST = 1;
+    public const SELECT_TYPE_COUNT = 2;
 
-    private $table_init1 = array('UserName' => 'varchar(255)', 'PasswordHash' => 'varchar(511)', 'Position' => 'varchar(255)');
-    private $table_init2 = array('UserName' => 'varchar(255)', 'CreatorIP' => 'varchar(15)', 'CreatedTime' => 'datetime', 'Description' => 'text(511)');
-    private $table_init3 = array('Item' => 'varchar(255)', 'Value' => 'varchar(511)');
+    public const TABLE_NAME1  = 'user_list';
+    public const TABLE_NAME2 = 'list';
+    public const TABLE_NAME3 = 'setting';
+
+    private const HOSTNAME = 'localhost';
+    private const USERNAME = 'root';
+    private const PASSWORD = '0000';
+    private const DATABASE = 'test_database';
+
+    private const TABLE_INIT1 = array('UserName' => 'varchar(255)', 'PasswordHash' => 'varchar(511)', 'Position' => 'varchar(255)');
+    private const TABLE_INIT2 = array('UserName' => 'varchar(255)', 'CreatorIP' => 'varchar(15)', 'CreatedTime' => 'datetime', 'Description' => 'text(511)');
+    private const TABLE_INIT3 = array('Item' => 'varchar(255)', 'Value' => 'varchar(511)');
 
     private $mysql;
     
     function __construct() {
-        $this->mysql = new MySQL($this->hostname, $this->username, $this->password, $this->database);
-        $this->mysql->table_initialize($this->table_name1, $this->table_init1);
-        $this->mysql->table_initialize($this->table_name2, $this->table_init2);
-        $this->mysql->table_initialize($this->table_name3, $this->table_init3);
+        $this->mysql = new MySQL(MySQL_Manage::HOSTNAME, MySQL_Manage::USERNAME, MySQL_Manage::PASSWORD, MySQL_Manage::DATABASE);
+        $this->mysql->table_initialize(MySQL_Manage::TABLE_NAME1, MySQL_Manage::TABLE_INIT1);
+        $this->mysql->table_initialize(MySQL_Manage::TABLE_NAME2, MySQL_Manage::TABLE_INIT2);
+        $this->mysql->table_initialize(MySQL_Manage::TABLE_NAME3, MySQL_Manage::TABLE_INIT3);
 
-        $this->drop();
+        $this->drop(MySQL_Manage::TABLE_NAME1);
+        $this->drop(MySQL_Manage::TABLE_NAME2);
+        $this->drop(MySQL_Manage::TABLE_NAME3);
 
         $this->mysql->CREATE();
     }
@@ -31,35 +38,29 @@ class MySQL_Manage {
         $this->mysql->show_sqls();
     }
 
-    function select(){       
-        $this->mysql->print_a($this->mysql->SELECT($this->table_name1, MySQL::SELECT_TYPE_COUNT), 'SELECT TYPE COUNT');
-        $this->mysql->print_a($this->mysql->SELECT($this->table_name1, MySQL::SELECT_TYPE_LIST, MySQL::SELECT_TYPE_ALL), 'SELECT TYPE LIST ALL');
-        $this->mysql->print_a($this->mysql->SELECT($this->table_name1, MySQL::SELECT_TYPE_LIST, MySQL::SELECT_TYPE_LATEST, 5), 'SELECT TYPE LIST LATEST');     
+    function select($table, $type, $count = 1){
+        if($type == MySQL_Manage::SELECT_TYPE_ALL)
+            return $this->mysql->SELECT($table, MySQL::SELECT_TYPE_LIST, MySQL::SELECT_TYPE_ALL);
+        if($type == MySQL_Manage::SELECT_TYPE_LATEST)
+            return $this->mysql->SELECT($table, MySQL::SELECT_TYPE_LIST, MySQL::SELECT_TYPE_LATEST, $count);
+        if($type == MySQL_Manage::SELECT_TYPE_COUNT)
+            return $this->mysql->SELECT($table, MySQL::SELECT_TYPE_COUNT);
     }
 
-    function insert (){
-        for($i = 0; $i < 10; $i++){
-            $this->mysql->INSERT($this->table_name1, array('UserName' => "val_username$i", 'PasswordHash' => 'val_passwordhash', 'Position' => 'val_position'));
-            $this->mysql->INSERT($this->table_name2, array('UserName' => "val_username$i", 'CreatorIP' => 'val_creatorIp', 'CreatedTime' => 'val_createdtime', 'Description' => 'val_description'));
-            $this->mysql->INSERT($this->table_name3, array('Item' => "val_item$i", 'Value' => 'val_value'));
-        }
+    function insert ($table, $data){
+        $this->mysql->INSERT($table, $data);
     }
 
-    function update (){
-        $this->mysql->UPDATE($this->table_name1, 2, array('UserName' => 'rrwr', 'PasswordHash' => 'val_2', 'Position' => 'val_3'));
-        $this->mysql->UPDATE($this->table_name1, 5, array('UserName' => 'rrar', 'PasswordHash' => 'val_2', 'Position' => 'val_3'));
+    function update ($table, $id, $array){
+        $this->mysql->UPDATE($table, $id, $array);
     }
 
-    function delete (){     
-        $this->mysql->DELETE($this->table_name1, 2);
-        $this->mysql->DELETE($this->table_name2, 2);
-        $this->mysql->DELETE($this->table_name3, 2);
+    function delete ($table, $id){     
+        $this->mysql->DELETE($table, $id);
     }
 
-    private function drop (){
-        $this->mysql->DROP($this->table_name1);
-        $this->mysql->DROP($this->table_name2);
-        $this->mysql->DROP($this->table_name3);
+    private function drop ($table){
+        $this->mysql->DROP($table);
     }
 }
 ?>

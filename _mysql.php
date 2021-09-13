@@ -77,7 +77,7 @@ class MySQL {
     }
 
     function show_sqls() {
-        $this->print_a($this->SQL, "SQL's");
+        print_a($this->SQL, "SQL's");
     }
 
     function CREATE($table = NULL) {
@@ -152,14 +152,14 @@ class MySQL {
         }
         return $params;
     }
+}
 
-    public static function print_a($array, $name = NULL){
-        echo '<div style="margin: 15px 10px; padding: 5px 10px; border: 1px solid black;">';
-            echo "<div style='border-bottom: 1px solid black; padding: 0 5px;'>$name</div>";
-            echo '<pre style="padding: 0 10px">';
-                print_r($array);
-            echo '</pre>';
-        echo '</div>';
-    }
+function print_a($array, $name = NULL){
+    echo '<div style="margin: 15px 10px; padding: 5px 10px; border: 1px solid black;">';
+        echo "<div style='border-bottom: 1px solid black; padding: 0 5px;'>$name</div>";
+        echo '<pre style="padding: 0 10px">';
+            print_r($array);
+        echo '</pre>';
+    echo '</div>';
 }
 ?>
