@@ -13,7 +13,8 @@ class MySQL {
         $this->SQL = array(
             'TABLES' => array(),
             'COLUMN' => array(),
-            'CREATE' => array(), 
+            'CREATE' => array(),
+            'UPDATE' => array(),
             'INSERT' => array(),
             'DELETE' => array(), 
             'DROP' => array()
@@ -34,19 +35,21 @@ class MySQL {
     function table_initialize($table, $array) {
         if(in_array($table, $this->SQL['TABLES'])) return array( false, 'The table is already defined.');
         $array = array('ID' => "int AUTO_INCREMENT NOT NULL PRIMARY KEY") + $array;
-        $create = ''; $insert = array('', ''); $column = array();
+        $create = ''; $insert = array('', ''); $column = array(); $update = '';
         foreach($array as $key => $value){
             $create = $create.$key.' '.$value.', ';
             if($key != 'ID'){
                 $insert[0] = $insert[0].$key.', ';
                 $insert[1] = $insert[1].':'.$key.', ';
                 $column += array(count($column) => $key);
+                $update = $update.$key.'=:'.$key.', ';
             }
         }
         // $this->SQL['CREATE'][$table] = "CREATE TABLE IF NOT EXISTS `$table` ".'('.rtrim($create, ', ').');';
         $this->SQL['TABLES'][count($this->SQL['TABLES'])] = $table;
         $this->SQL['COLUMN'][$table] = $column;
         $this->SQL['CREATE'][$table] = "CREATE TABLE `$table` ".'('.rtrim($create, ', ').');';
+        $this->SQL['UPDATE'][$table] = "UPDATE `$table` SET ".rtrim($update, ', ')." where ID = :ID;";
         $this->SQL['INSERT'][$table] = "INSERT INTO `$table` ".'('.rtrim($insert[0], ', ').') VALUES ('.rtrim($insert[1], ', ').');';
         $this->SQL['DELETE'][$table] = "DELETE FROM `$table` WHERE ID = :ID; SET @i := 0; UPDATE `$table` SET ID = (@i := @i + 1);";
         $this->SQL['DROP'][$table] = "DROP TABLE `$table`;";
@@ -90,17 +93,15 @@ class MySQL {
     }
 
     function INSERT($table, $array) {
-        $sql_columns = $this->SQL['COLUMN'][$table];
-        $insert_columns = array_keys($array);
-        $params = array();
-        foreach($sql_columns as $sc){
-            foreach($insert_columns as $ic){
-                if($sc == $ic){
-                    $params += array(':'.$sc => $array[$ic]);
-                }
-            }
-        }
+        $params = $this->params($this->SQL['COLUMN'][$table], array_keys($array), $array);
         $this->send_sql($this->SQL['INSERT'][$table], $params);
+    }
+
+    function UPDATE($table, $where, $array){
+        $array = array('ID' => $where) + $array;
+        $sql_columns = $this->SQL['COLUMN'][$table];
+        $params = $this->params(array_unshift($sql_columns, 'ID'), array_keys($array), $array);
+        $this->send_sql($this->SQL['UPDATE'][$table], $params);
     }
 
     function DELETE($table, $id) {
@@ -110,6 +111,18 @@ class MySQL {
     function DROP($table) {
         $this->send_sql($this->SQL['DROP'][$table]);
         unset($this->SQL['DROP'][$table]);
+    }
+
+    private function params($sql_columns, $insert_columns, $array){
+        $params = array(); 
+        foreach($sql_columns as $sc){
+            foreach($insert_columns as $ic){
+                if($sc == $ic){
+                    $params += array(':'.$sc => $array[$ic]);
+                }
+            }
+        }
+        return $params;
     }
 }
 ?>
