@@ -14,7 +14,6 @@
     $table_init2 = array('UserName' => 'varchar(255)', 'CreatorIP' => 'varchar(15)', 'CreatedTime' => 'datetime', 'Description' => 'text(511)');
     $table_init3 = array('Item' => 'varchar(255)', 'Value' => 'varchar(511)');
 
-
     $mysql = new MySQL($hostname, $username, $password, $database);
     
     $mysql->table_initialize($table_name1, $table_init1);
