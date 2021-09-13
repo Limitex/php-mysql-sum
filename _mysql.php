@@ -6,6 +6,7 @@ class MySQL {
     function __construct($hostname, $username, $password, $database) {
         try {
             $this->MySQL_PDO = new PDO ("mysql:host=$hostname;dbname=$database;charset=utf8", $username, $password);
+            // $this->MySQL_PDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             echo $e->getMessage;
             exit;
@@ -15,9 +16,15 @@ class MySQL {
             'COLUMN' => array(),
             'CREATE' => array(),
             'UPDATE' => array(),
-            'SELECT' => array(),
             'INSERT' => array(),
-            'DELETE' => array(), 
+            'DELETE' => array(),
+            'SELECT' => array(
+                'COUNT' => array(),
+                'LIST' => array(
+                    'ALL' => array(),
+                    'LATEST' => array()
+                )
+            ),
             'DROP' => array()
         );
     }
@@ -29,8 +36,13 @@ class MySQL {
     
     function send_sql($SQL, $parms = NULL) {
         $stmt = $this->MySQL_PDO->prepare($SQL);
-        if($stmt->execute($parms)) return array( true, $stmt->fetchAll() );
-        else return array( false, 'SQL could not be executed for some reason.' );
+        if(isset($parms)){
+            foreach ($parms as $key => $value)
+            if (is_int($value)) $stmt->bindValue($key, $value, PDO::PARAM_INT);
+            else $stmt->bindValue($key, $value, PDO::PARAM_STR);
+        }
+        if($stmt->execute()) return array( true, $stmt->fetchAll() );
+        else return array( false, '' );
     }
 
     function table_initialize($table, $array) {
@@ -51,9 +63,11 @@ class MySQL {
         $this->SQL['COLUMN'][$table] = $column;
         $this->SQL['CREATE'][$table] = "CREATE TABLE `$table` ".'('.rtrim($create, ', ').');';
         $this->SQL['UPDATE'][$table] = "UPDATE `$table` SET ".rtrim($update, ', ')." where ID = :ID;";
-        $this->SQL['SELECT'][$table] = "SELECT * from (SELECT * from `$table`) as A order by ID;";
         $this->SQL['INSERT'][$table] = "INSERT INTO `$table` ".'('.rtrim($insert[0], ', ').') VALUES ('.rtrim($insert[1], ', ').');';
         $this->SQL['DELETE'][$table] = "DELETE FROM `$table` WHERE ID = :ID; SET @i := 0; UPDATE `$table` SET ID = (@i := @i + 1);";
+        $this->SQL['SELECT']['LIST']['LATEST'][$table] = "SELECT * from (SELECT * from `$table` order by ID desc limit :SIZE) as A order by ID;";
+        $this->SQL['SELECT']['LIST']['ALL'][$table] = "SELECT * from (SELECT * from `$table`) as A order by ID;";
+        $this->SQL['SELECT']['COUNT'][$table] = "SELECT COUNT(*) FROM $table";
         $this->SQL['DROP'][$table] = "DROP TABLE `$table`;";
         return array( true, '' );
     }
@@ -99,8 +113,21 @@ class MySQL {
         }
     }
 
-    function SELECT($table){
-        return $this->send_sql($this->SQL['SELECT'][$table]);
+    function SELECT($table, $type1, $type2 = NULL, $arg2 = NULL){
+        if($type1 == 'list'){
+            if (empty($type2)) throw new Exception('Argument required');
+
+            if ($type2 == 'all'){
+                return $this->send_sql($this->SQL['SELECT']['LIST']['ALL'][$table])[1];
+            }
+            if ($type2 == 'latest'){
+                if (empty($arg2)) throw new Exception('Argument required');
+                return $this->send_sql($this->SQL['SELECT']['LIST']['LATEST'][$table], array(':SIZE' => $arg2));
+            }
+        }
+        if($type1 == 'count'){
+            return $this->send_sql($this->SQL['SELECT']['COUNT'][$table])[1][0][0];
+        }
     }
 
     function INSERT($table, $array) {

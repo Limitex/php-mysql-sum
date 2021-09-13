@@ -23,9 +23,9 @@
 
     $mysql->show_sqls(1);
     
-    // $mysql->DROP($table_name1);
-    // $mysql->DROP($table_name2);
-    // $mysql->DROP($table_name3);
+    $mysql->DROP($table_name1);
+    $mysql->DROP($table_name2);
+    $mysql->DROP($table_name3);
 
     $mysql->CREATE();
 
@@ -42,8 +42,10 @@
     $mysql->DELETE($table_name2, 2);
     $mysql->DELETE($table_name3, 2);
 
-    $mysql->print_a($mysql->SELECT($table_name1));
-
+    $mysql->print_a($mysql->SELECT($table_name1, 'count'));
+    $mysql->print_a($mysql->SELECT($table_name1, 'list', 'all'));
+    $mysql->print_a($mysql->SELECT($table_name1, 'list', 'latest', 5));
+    
     // $mysql->DROP($table_name1);
     // $mysql->DROP($table_name2);
     // $mysql->DROP($table_name3);
