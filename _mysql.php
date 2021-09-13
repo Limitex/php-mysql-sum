@@ -15,6 +15,7 @@ class MySQL {
             'COLUMN' => array(),
             'CREATE' => array(),
             'UPDATE' => array(),
+            'SELECT' => array(),
             'INSERT' => array(),
             'DELETE' => array(), 
             'DROP' => array()
@@ -50,6 +51,7 @@ class MySQL {
         $this->SQL['COLUMN'][$table] = $column;
         $this->SQL['CREATE'][$table] = "CREATE TABLE `$table` ".'('.rtrim($create, ', ').');';
         $this->SQL['UPDATE'][$table] = "UPDATE `$table` SET ".rtrim($update, ', ')." where ID = :ID;";
+        $this->SQL['SELECT'][$table] = "SELECT * from (SELECT * from `$table`) as A order by ID;";
         $this->SQL['INSERT'][$table] = "INSERT INTO `$table` ".'('.rtrim($insert[0], ', ').') VALUES ('.rtrim($insert[1], ', ').');';
         $this->SQL['DELETE'][$table] = "DELETE FROM `$table` WHERE ID = :ID; SET @i := 0; UPDATE `$table` SET ID = (@i := @i + 1);";
         $this->SQL['DROP'][$table] = "DROP TABLE `$table`;";
@@ -90,6 +92,10 @@ class MySQL {
             }
             return array( false, -1, 'The specified table is not defined.');
         }
+    }
+
+    function SELECT($table){
+        return $this->send_sql($this->SQL['SELECT'][$table]);
     }
 
     function INSERT($table, $array) {
