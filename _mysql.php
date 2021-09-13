@@ -58,19 +58,24 @@ class MySQL {
         return array( true, '' );
     }
 
-    function show_sqls() {
-        foreach($this->SQL as $key1 => $array){
-            foreach($array as $key => $value){
-                if(!is_array($value)){
-                    echo '['.$key1.']['.$key.'] = "'.$value.'"<br>';
-                }else{
-                    foreach($value as $k => $a){
-                        echo '['.$key1.']['.$key.']['.$k.'] = "'.$a.'"<br>';
+    function show_sqls($type) {
+        if($type == 0){
+            foreach($this->SQL as $key1 => $array){
+                foreach($array as $key => $value){
+                    if(!is_array($value)){
+                        echo '['.$key1.']['.$key.'] = "'.$value.'"<br>';
+                    }else{
+                        foreach($value as $k => $a){
+                            echo '['.$key1.']['.$key.']['.$k.'] = "'.$a.'"<br>';
+                        }
                     }
+                    
                 }
-                
+                echo "<br>";
             }
-            echo "<br>";
+        }
+        if ($type == 1){
+            $this->print_a($this->SQL);
         }
     }
 
@@ -132,6 +137,12 @@ class MySQL {
             }
         }
         return $params;
+    }
+
+    public static function print_a($array){
+        echo '<pre>';
+        print_r($array);
+        echo '</pre>';
     }
 }
 ?>
